@@ -2,15 +2,17 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "PHP: Start Server",
+      "label": "Static: Start Server",
       "type": "process",
-      "command": "php",
+      "command": "python3",
       "args": [
-        "-S",
-        "127.0.0.1:8001",
-        "-t",
-        "${workspaceFolder}"
+        "-m",
+        "http.server",
+        "8001"
       ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
       "isBackground": true,
       "problemMatcher": []
     }

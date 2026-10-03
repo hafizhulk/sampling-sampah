@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Kalkulator Sampling Sampah — SNI 3964:2025</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="logo" aria-hidden="true">◈</div>
+    <div>
+      <h1>Kalkulator Sampling Timbulan Sampah — SNI 3964:2025</h1>
+      <p>Penentuan jumlah contoh SRT · SSSRT · TPS/TPS3R/TPST · TPA</p>
+    </div>
+  </div>
+</header>
+<div class="wrap">
+
+<nav class="tabs" aria-label="Pilih kategori">
+  <button type="button" class="tb on" data-tab="srt">SRT</button>
+  <button type="button" class="tb" data-tab="sssrt">SSSRT</button>
+  <button type="button" class="tb" data-tab="tps">TPS / TPS3R / TPST</button>
+  <button type="button" class="tb" data-tab="tpa">TPA</button>
+  <button type="button" class="tb" data-tab="info">Panduan</button>
+</nav>
+
+<section id="tab-srt" class="tab on">
+<form id="form-srt" novalidate>
+<div class="card">
+  <div class="ct">Data jumlah penduduk</div>
+  <div class="checkrow">
+    <input type="checkbox" id="chk_proy" value="1">
+    <label for="chk_proy">Data penduduk tahun rencana <strong>tidak tersedia</strong> — gunakan proyeksi geometrik</label>
+  </div>
+  <div id="sec-dir">
+    <div class="r2">
+      <div class="fg"><label for="f-pt">Jumlah penduduk tahun rencana (Pt) *</label>
+        <input type="number" id="f-pt" min="1" placeholder="Jumlah jiwa"></div>
+      <div class="fg"><label for="f-thr-d">Tahun rencana</label>
+        <input type="number" id="f-thr-d" value="2025"></div>
+    </div>
+  </div>
+  <div id="sec-proy" class="formula" style="display:none">
+    <div class="math">P<sub>t</sub> = P<sub>0</sub> × (1 + <span class="frac"><span>r</span><span>100</span></span>)<sup>n</sup></div>
+    <div class="math-def" style="margin-bottom:12px">r = laju pertumbuhan (%/tahun), n = selisih tahun</div>
+    <div class="r2">
+      <div class="fg"><label for="f-p0">Penduduk tahun dasar (P₀) *</label>
+        <input type="number" id="f-p0" min="1" placeholder="Jiwa"></div>
+      <div class="fg"><label for="f-td">Tahun data tersedia</label>
+        <input type="number" id="f-td" value="2020"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label for="f-rg">Laju pertumbuhan r (%/tahun) *</label>
+        <input type="number" id="f-rg" step="0.01" placeholder="Contoh: 1.5"></div>
+      <div class="fg"><label for="f-thr-p">Tahun rencana sampling</label>
+        <input type="number" id="f-thr-p" value="2025"></div>
+    </div>
+    <div class="note" id="proy-note" hidden></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Klasifikasi kota &amp; metode</div>
+  <div class="note" id="kota-note">Klasifikasi dan Cd ditentukan otomatis dari Pt setelah Pt diisi (Tabel 3).</div>
+  <div class="r2">
+    <div class="fg"><label for="f-srt-met">Metode</label>
+      <select id="f-srt-met">
+        <option value="alt1">Alternatif 1 — Ps = Cd × √Pt</option>
+        <option value="alt2">Alternatif 2 — Slovin</option>
+      </select>
+    </div>
+    <div class="fg"><label for="f-srt-e">Tingkat kesalahan e (Alt 2)</label>
+      <select id="f-srt-e">
+        <option value="0.1">10%</option>
+        <option value="0.05">5%</option>
+        <option value="0.01">1%</option>
+      </select>
+    </div>
+  </div>
+  <div class="r2">
+    <div class="fg"><label for="f-avg">Rata-rata orang per KK (N̄)</label>
+      <input type="number" id="f-avg" value="4" min="0.1" max="10" step="0.1">
+      <div class="hint">Umumnya 4 orang/KK (BPS/survei lapangan).</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="ct">Distribusi tingkat ekonomi (Sn)</div>
+  <div class="note">Total Sn tinggi + menengah + rendah = 100%. Sumber: BPS/BKKBN/survei lapangan.</div>
+  <div class="r3">
+    <div class="fg"><label for="f-snh">Tinggi (%)</label>
+      <input type="number" id="f-snh" value="15" min="0" max="100" step="0.1"></div>
+    <div class="fg"><label for="f-snm">Menengah (%)</label>
+      <input type="number" id="f-snm" value="75" min="0" max="100" step="0.1"></div>
+    <div class="fg"><label for="f-snl">Rendah (%)</label>
+      <input type="number" id="f-snl" value="10" min="0" max="100" step="0.1"></div>
+  </div>
+</div>
+
+<div class="ebox" role="alert" id="err-srt" hidden></div>
+<div class="bgrp">
+  <button type="submit" class="btn bp">Hitung SRT</button>
+  <button type="button" class="btn bs" data-reset="srt">Reset</button>
+</div>
+</form>
+<div id="res-srt"></div>
+</section>
+
+<section id="tab-sssrt" class="tab">
+<form id="form-sssrt" novalidate>
+<div class="card">
+  <div class="ct">Parameter SSSRT</div>
+  <div class="r3">
+    <div class="fg"><label for="f-ss-met">Metode</label>
+      <select id="f-ss-met">
+        <option value="alt1">Alt 1 — S = Cd × √Ts</option>
+        <option value="alt2">Alt 2 — Slovin</option>
+      </select>
+    </div>
+    <div class="fg"><label for="f-ss-kota">Klasifikasi kota (Cd)</label>
+      <select id="f-ss-kota">
+        <option value="">— Pilih —</option>
+        <option value="1.5">Megapolitan — Cd 1,5</option>
+        <option value="1">Metropolitan — Cd 1,0</option>
+        <option value="1b">Kota Besar — Cd 1,0</option>
+        <option value="0.5">Kota Sedang — Cd 0,5</option>
+        <option value="0.5k">Kota Kecil — Cd 0,5</option>
+      </select>
+    </div>
+    <div class="fg"><label for="f-ss-cd">Koefisien Cd</label>
+      <input type="text" id="f-ss-cd" readonly value=""></div>
+  </div>
+  <div class="r2">
+    <div class="fg"><label for="f-ss-e">Tingkat kesalahan e (Alt 2)</label>
+      <select id="f-ss-e">
+        <option value="0.1">10%</option>
+        <option value="0.05">5%</option>
+        <option value="0.01">1%</option>
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="ct">Daftar jenis fasilitas SSSRT</div>
+  <div class="note">Tambahkan setiap jenis fasilitas beserta jumlah total unit di wilayah kajian.</div>
+  <div id="sssrt-rows">
+  <div class="entry" id="ss0">
+    <div class="r2">
+      <div class="fg"><label>Jenis fasilitas</label>
+        <select data-sync="ssnm0">
+          <option value="">— Pilih jenis —</option>
+        </select>
+        <input type="text" id="ssnm0" placeholder="Nama fasilitas" class="mt5">
+      </div>
+      <div class="fg"><label>Total unit di wilayah (Ts/N)</label>
+        <input type="number" min="1" placeholder="Jumlah unit">
+        <div class="hint">Total unit fasilitas sejenis</div>
+      </div>
+    </div>
+  </div>
+  <div class="entry" id="ss1">
+    <button type="button" class="del" data-rm="ss1" aria-label="Hapus baris">×</button>
+    <div class="r2">
+      <div class="fg"><label>Jenis fasilitas</label>
+        <select data-sync="ssnm1">
+          <option value="">— Pilih jenis —</option>
+        </select>
+        <input type="text" id="ssnm1" placeholder="Nama fasilitas" class="mt5">
+      </div>
+      <div class="fg"><label>Total unit di wilayah (Ts/N)</label>
+        <input type="number" min="1" placeholder="Jumlah unit">
+        <div class="hint">Total unit fasilitas sejenis</div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <button type="button" class="add-btn" id="btn-ss-add">+ Tambah jenis fasilitas</button>
+</div>
+<div class="ebox" role="alert" id="err-sssrt" hidden></div>
+<div class="bgrp">
+  <button type="submit" class="btn bp">Hitung SSSRT</button>
+  <button type="button" class="btn bs" data-reset="sssrt">Reset</button>
+</div>
+</form>
+<div id="res-sssrt"></div>
+</section>
+
+<section id="tab-tps" class="tab">
+<form id="form-tps" novalidate>
+<div class="card">
+  <div class="ct">Parameter TPS / TPS3R / TPST</div>
+  <div class="note"><strong>Pasal 4.2.4</strong> — N &gt; 30/hari → Alt 1: n = <span class="frac"><span>N</span><span>1 + N·e<sup>2</sup></span></span> · N ≤ 30/hari → Alt 2: 10% dari N. Metode dipilih otomatis per lokasi.</div>
+  <div class="r2">
+    <div class="fg"><label for="f-tps-e">Tingkat kesalahan e (Alt 1)</label>
+      <select id="f-tps-e">
+        <option value="0.1">10%</option>
+        <option value="0.05">5%</option>
+        <option value="0.01">1%</option>
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="ct">Daftar lokasi TPS / TPS3R / TPST</div>
+  <div id="tps-rows">
+  <div class="entry" id="tp0">
+    <div class="r3">
+      <div class="fg"><label>Nama lokasi</label>
+        <input type="text" placeholder="Nama TPS/TPS3R/TPST"></div>
+      <div class="fg"><label>Jenis</label>
+        <select>
+          <option>TPS (Tempat Penampungan Sementara)</option>
+          <option>TPS3R</option>
+          <option>TPST (Terpadu)</option>
+        </select>
+      </div>
+      <div class="fg"><label>Kapasitas alat (m³)</label>
+        <input type="number" min="0" step="0.1" placeholder="—"></div>
+    </div>
+    <div class="r2">
+      <div class="fg"><label>Total ritasi/hari (N) *</label>
+        <input type="number" min="1" placeholder="Contoh: 45" data-tps-n="tpspv0" id="tpsn0">
+        <div class="hint">Total ritasi semua alat pengumpul per hari</div>
+      </div>
+      <div class="fg"><label class="vh">Pratinjau</label>
+        <div id="tpspv0" class="pv"></div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <button type="button" class="add-btn" id="btn-tps-add">+ Tambah lokasi TPS</button>
+</div>
+<div class="ebox" role="alert" id="err-tps" hidden></div>
+<div class="bgrp">
+  <button type="submit" class="btn bp">Hitung TPS/TPS3R/TPST</button>
+  <button type="button" class="btn bs" data-reset="tps">Reset</button>
+</div>
+</form>
+<div id="res-tps"></div>
+</section>
+
+<section id="tab-tpa" class="tab">
+<form id="form-tpa" novalidate>
+<div class="card">
+  <div class="ct">Parameter TPA</div>
+  <div class="note"><strong>Pasal 4.2.5</strong> — Alt 1: n = <span class="frac"><span>N</span><span>1 + N·e<sup>2</sup></span></span> · Alt 2: 10% dari N. Alat angkut harus mewakili setiap jenis kawasan.</div>
+  <div class="r2">
+    <div class="fg"><label for="f-tpa-met">Metode</label>
+      <select id="f-tpa-met">
+        <option value="alt1">Alternatif 1 — Slovin</option>
+        <option value="alt2">Alternatif 2 — 10%</option>
+      </select>
+    </div>
+    <div class="fg"><label for="f-tpa-e">Tingkat kesalahan e (Alt 1)</label>
+      <select id="f-tpa-e">
+        <option value="0.1">10%</option>
+        <option value="0.05">5%</option>
+        <option value="0.01">1%</option>
+      </select>
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="ct">Daftar lokasi TPA</div>
+  <div id="tpa-rows">
+  <div class="entry" id="ta0">
+    <div class="r3">
+      <div class="fg"><label>Nama TPA</label>
+        <input type="text" placeholder="Nama TPA"></div>
+      <div class="fg"><label>Kapasitas (ton/hari)</label>
+        <input type="number" min="0" step="1" placeholder="—">
+        <div class="hint">Kapasitas penerimaan per hari</div>
+      </div>
+      <div class="fg"><label>Ritasi alat angkut/hari (N) *</label>
+        <input type="number" min="1" placeholder="Contoh: 20" data-tpa-n="tapv0" id="tpan0">
+      </div>
+    </div>
+    <div id="tapv0" class="pv"></div>
+  </div>
+  </div>
+  <button type="button" class="add-btn" id="btn-tpa-add">+ Tambah lokasi TPA</button>
+</div>
+<div class="ebox" role="alert" id="err-tpa" hidden></div>
+<div class="bgrp">
+  <button type="submit" class="btn bp">Hitung TPA</button>
+  <button type="button" class="btn bs" data-reset="tpa">Reset</button>
+</div>
+</form>
+<div id="res-tpa"></div>
+</section>
+
+<section id="tab-info" class="tab">
+<div class="card">
+  <div class="ct">Kumpulan rumus SNI 3964:2025</div>
+
+  <h3 class="h3">Proyeksi penduduk</h3>
+  <div class="formula">
+    <div class="math">P<sub>t</sub> = P<sub>0</sub> × (1 + <span class="frac"><span>r</span><span>100</span></span>)<sup>n</sup></div>
+    <div class="math-def">r = laju pertumbuhan (%/tahun), n = selisih tahun</div>
+  </div>
+
+  <h3 class="h3">SRT — Pasal 4.2.2</h3>
+  <div class="formula">
+    <div class="math">Alt 1 (P<sub>t</sub> ≤ 1 jt): P<sub>s</sub> = C<sub>d</sub> × √<span class="sqrt">P<sub>t</sub></span></div>
+    <div class="math">Alt 1 (P<sub>t</sub> &gt; 1 jt): C<sub>j</sub> = <span class="frac"><span>P<sub>t</sub></span><span>1.000.000</span></span> ; P<sub>s</sub> = C<sub>d</sub> × C<sub>j</sub> × √<span class="sqrt">P<sub>t</sub></span></div>
+    <div class="math">Alt 2 (Slovin): n = <span class="frac"><span>N</span><span>1 + N·e<sup>2</sup></span></span></div>
+    <div class="math">K = <span class="frac"><span>P<sub>s</sub></span><span>N̄</span></span> ; N<sub>r</sub> = S<sub>n</sub> × K <span class="math-def">(per level H/M/L, total disesuaikan = K)</span></div>
+  </div>
+
+  <h3 class="h3">SSSRT — Pasal 4.2.3</h3>
+  <div class="formula">
+    <div class="math">Alt 1: S = C<sub>d</sub> × √<span class="sqrt">T<sub>s</sub></span></div>
+    <div class="math">Alt 2: n = <span class="frac"><span>N</span><span>1 + N·e<sup>2</sup></span></span></div>
+    <div class="math-def">T<sub>s</sub>/N = total unit fasilitas sejenis di wilayah; hasil dibatasi T<sub>s</sub></div>
+  </div>
+
+  <h3 class="h3">TPS/TPS3R/TPST — Pasal 4.2.4</h3>
+  <div class="formula">
+    <div class="math">N &gt; 30/hari → Alt 1: n = <span class="frac"><span>N</span><span>1 + N·e<sup>2</sup></span></span></div>
+    <div class="math">N ≤ 30/hari → Alt 2: n = ⌈10% × N⌉</div>
+  </div>
+
+  <h3 class="h3">TPA — Pasal 4.2.5</h3>
+  <div class="formula">
+    <div class="math">Alt 1: n = <span class="frac"><span>N</span><span>1 + N·e<sup>2</sup></span></span></div>
+    <div class="math">Alt 2: n = ⌈10% × N⌉</div>
+    <div class="math-def">N = total ritasi alat angkut/hari ke TPA</div>
+  </div>
+
+  <h3 class="h3">Koefisien Cd (Tabel 3)</h3>
+  <table class="rt">
+    <thead><tr><th>Klasifikasi</th><th>Jumlah penduduk</th><th>Cd</th></tr></thead>
+    <tbody>
+      <tr><td>Megapolitan</td><td>≥ 5.000.000</td><td><strong>1,5</strong></td></tr>
+      <tr><td>Metropolitan</td><td>1.000.000 – &lt;5.000.000</td><td><strong>1,0</strong></td></tr>
+      <tr><td>Kota Besar</td><td>500.000 – &lt;1.000.000</td><td><strong>1,0</strong></td></tr>
+      <tr><td>Kota Sedang</td><td>100.000 – &lt;500.000</td><td><strong>0,5</strong></td></tr>
+      <tr><td>Kota Kecil</td><td>&lt; 100.000</td><td><strong>0,5</strong></td></tr>
+    </tbody>
+  </table>
+</div>
+</section>
+
+</div>
+<script src="js/calculations.js" defer></script>
+<script src="js/tabs.js" defer></script>
+<script src="js/app.js" defer></script>
+</body>
+</html>

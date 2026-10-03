@@ -27,7 +27,7 @@ Penentuan jumlah contoh timbulan sampah biasanya dikerjakan manual dengan spread
 
 Aplikasi ini mengubah proses itu menjadi kalkulator terpandu: masukkan data lapangan, dan semua perhitungan — termasuk **langkah perhitungan yang bisa diverifikasi satu per satu** — keluar sebagai hasil siap dilampirkan ke laporan.
 
-Aplikasi bersifat **stateless**: tidak ada database, tidak ada login, tidak ada data yang disimpan di server. Semua input hidup di dalam satu request POST.
+Aplikasi bersifat **statis dan stateless**: HTML + CSS + JavaScript murni tanpa proses build, tanpa database, tanpa login, tanpa data yang disimpan di mana pun. Semua perhitungan yang dulu dikerjakan server kini berjalan di browser. Cocok di-deploy ke hosting statis seperti **Cloudflare Pages**.
 
 ## Fitur
 
@@ -69,8 +69,8 @@ Tab berisi kumpulan rumus tiap pasal dan tabel koefisien `Cd` (Tabel 3), sehingg
 
 - **Transparansi perhitungan:** setiap hasil disertai daftar *langkah perhitungan* bernomor, sehingga angka dapat diaudit manual.
 - **Validasi input** dengan pesan galat Bahasa Indonesia yang spesifik (mis. `Total Sn harus = 100%`, `Tahun rencana harus lebih besar dari tahun dasar`).
-- **Nilai form dipertahankan** setelah POST — hasil tidak hilang saat ingin mengubah satu parameter lalu menghitung ulang.
-- **UI responsif** dengan tema terang berkontras AA, tanpa dependensi eksternal (tanpa CDN, tanpa font eksternal, tanpa pelacak).
+- **Nilai form dipertahankan** — hasil tidak hilang saat ingin mengubah satu parameter lalu menghitung ulang (perhitungan terjadi di browser tanpa reload).
+- **UI responsif** dengan tema terang berkontras AA, tanpa dependensi eksternal (tanpa CDN, tanpa font eksternal, tanpa pelacak, tanpa build step).
 
 ## Rumus yang dipakai
 
@@ -107,69 +107,54 @@ TPA    Alt 2             : n = ⌈10% × N⌉
 
 ```text
 sampling-sampah/
-├── index.php                  # Satu-satunya entry point yang diakses browser
-├── assets/
-│   ├── style.css              # Seluruh styling (tanpa framework CSS)
-│   └── app.js                 # Tab, proyeksi, pratinjau, baris dinamis
-├── app/                       # Dibuka hanya oleh index.php, bukan via web
-│   ├── .htaccess              # Deny direct access (Apache)
-│   ├── config.php             # Konstanta & nilai default form
-│   ├── bootstrap.php          # Baca state form + proses POST
-│   ├── lib/
-│   │   ├── helpers.php        # Helper presentasi (esc, numf, kartu hasil)
-│   │   └── sampling.php       # Rumus SNI 3964:2025 (murni, tanpa I/O)
-│   └── templates/
-│       ├── layout.php         # Kerangka HTML
-│       └── tabs/              # srt · sssrt · tps · tpa · info
-└── .vscode/tasks.json         # Task "PHP: Start Server"
+├── index.html                   # Satu-satunya entry point (layout + 5 tab statis)
+├── css/
+│   └── style.css                # Seluruh styling (tanpa framework CSS)
+├── js/
+│   ├── calculations.js          # Rumus SNI 3964:2025 (murni, tanpa DOM; dipakai juga oleh tes Node)
+│   ├── tabs.js                  # Handler hitung per tab + baris dinamis + render hasil
+│   └── app.js                   # Init + tab switching
+├── tests/
+│   └── sampling.test.js         # Tes Node tanpa dependensi (node tests/sampling.test.js)
+└── .vscode/tasks.json           # Task "Static: Start Server"
 ```
 
-Pemisahan ini disengaja: **semua rumus terkumpul di `app/lib/sampling.php` sebagai fungsi murni** (tanpa akses `$_POST`), sehingga mudah diuji dan diverifikasi terhadap dokumen SNI secara terpisah dari lapisan tampilan.
+Pemisahan ini disengaja: **semua rumus terkumpul di `js/calculations.js` sebagai fungsi murni** (tanpa akses DOM), sehingga mudah diuji dan diverifikasi terhadap dokumen SNI secara terpisah dari lapisan tampilan. Berkas yang sama dipakai browser dan tes Node (guard `if (typeof module !== 'undefined' && module.exports)`).
 
 ## Persyaratan
 
-- **PHP 7.4+** (disarankan PHP 8.x) — memakai *arrow function* (`fn()`) dan *null coalescing* (`??`).
-- Tidak ada **Composer**, `npm`, atau proses build. Tidak ada dependensi pihak ketiga.
+- Browser modern apa pun — tidak ada **PHP**, **Composer**, `npm`, atau proses build. Tidak ada dependensi pihak ketiga.
+- Untuk tes: **Node.js** (tanpa `npm install` apa pun): `node tests/sampling.test.js`.
 
 ## Menjalankan secara lokal
 
 ```bash
 git clone https://github.com/hafizhulk/sampling-sampah.git
 cd sampling-sampah
-php -S 127.0.0.1:8001
+python3 -m http.server 8001
 ```
 
 Lalu buka <http://127.0.0.1:8001/>.
 
-Atau, di VS Code: jalankan task **`PHP: Start Server`** (`.vscode/tasks.json`), yang menyalakan server pada port `8001` dengan document root di folder proyek.
+Atau, di VS Code: jalankan task **`Static: Start Server`** (`.vscode/tasks.json`), yang menyalakan server pada port `8001` dengan document root di folder proyek.
 
-> Aplikasi tidak membutuhkan konfigurasi apa pun — tidak ada `.env`, tidak ada koneksi database.
+> Aplikasi tidak membutuhkan konfigurasi apa pun — tidak ada `.env`, tidak ada koneksi database, tidak ada sisi server.
 
 ## Deployment
 
-Aplikasi berjalan baik di **subdirektori** (seperti live demo di `/sampling-sampah/`) maupun di **root domain**, karena semua aset direferensikan dengan path relatif.
+Aplikasi berjalan baik di **subdirektori** maupun di **root domain**, karena semua aset direferensikan dengan path relatif.
 
-Cukup unggah seluruh isi repositori ke direktori target pada web server dengan PHP aktif:
+Untuk **Cloudflare Pages**: tidak perlu pengaturan build (Build command kosong, Build output directory `/`). Cukup hubungkan repositori, atau unggah isi folder proyek — `index.html` di root otomatis menjadi entry point.
+
+Untuk server file statis biasa:
 
 ```bash
 rsync -av --delete ./ user@server:/var/www/html/sampling-sampah/
 ```
 
-Yang perlu dipastikan di server:
-
-- PHP 7.4+ aktif pada direktori tersebut.
-- **Jangan** menaruh isi `app/` langsung di dalam docroot. `index.php` ada di root dan merangkai semuanya.
-- `app/.htaccess` bekerja pada **Apache**. Untuk **Nginx**, tambahkan aturan setara agar `app/` tidak dapat diakses langsung:
-
-```nginx
-location ^~ /app/ { deny all; }
-```
-
-Lapisan pengaman kedua tetap berlaku di lingkungan apa pun: setiap file di `app/` diawali `defined('APP') or exit('No direct access');`, sehingga request langsung akan berhenti dengan sendirinya.
-
 ## Catatan & batasan
 
-- Aplikasi hanya menerima nilai `e` = **10%, 5%, atau 1%**, sesuai pilihan yang divalidasi di server (`eValid()`).
+- Aplikasi hanya menerima nilai `e` = **10%, 5%, atau 1%**, sesuai pilihan yang divalidasi di browser (`eValid()` di `js/calculations.js`).
 - **`Cd` pada tab SRT tidak dapat diisi manual** — sengaja diturunkan dari `Pt` agar tidak ada ketidakcocokan antara klasifikasi kota dan koefisiennya.
 - Aplikasi **tidak menyimpan riwayat perhitungan** dan belum mengekspor PDF/Excel; hasil ditampilkan di layar sebagai tabel dan langkah perhitungan.
 - Ini alat bantu hitung. **Keputusan akhir metode sampling dan validitas data lapangan tetap berada pada perencana/penyusun dokumen**, dengan merujuk pada dokumen resmi **SNI 3964:2025**.

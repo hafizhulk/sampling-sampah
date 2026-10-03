@@ -20,10 +20,6 @@ desktop.ini
 logs/
 tmp/
 
-# --- Composer ---
-/vendor/
-composer.phar
-
-# --- Node (jika nanti dipakai) ---
+# --- Node (tes: node tests/sampling.test.js, tanpa dependensi) ---
 node_modules/
 npm-debug.log*
