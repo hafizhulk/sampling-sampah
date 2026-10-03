@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "PHP: Start Server",
+      "type": "process",
+      "command": "php",
+      "args": [
+        "-S",
+        "127.0.0.1:8001",
+        "-t",
+        "${workspaceFolder}"
+      ],
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

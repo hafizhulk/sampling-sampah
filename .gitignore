@@ -1,0 +1,29 @@
+# --- OS / Editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*~
+
+# --- IDE ---
+.idea/
+*.code-workspace
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+
+# --- Logs & runtime ---
+*.log
+logs/
+tmp/
+
+# --- Composer ---
+/vendor/
+composer.phar
+
+# --- Node (jika nanti dipakai) ---
+node_modules/
+npm-debug.log*
